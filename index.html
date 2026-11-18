@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Platoon · Two-Player Card Game</title>
+<style>
+:root{color-scheme:dark;--bg:#101d24;--panel:#192d35;--panel2:#233d45;--gold:#e9c87b;--text:#f3eee1;--muted:#b1c3c3;--green:#7bc8ac;--red:#f08a86}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 45% 0,#2a4850,#101d24 70%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}.wrap{max-width:1100px;margin:auto;padding:22px 16px 55px}header{text-align:center;margin:12px 0 28px}h1{font:700 clamp(2.6rem,6vw,4.3rem) Georgia,serif;letter-spacing:.06em;color:var(--gold);margin:0}header p{color:var(--muted);margin:7px}h2{font:600 1.35rem Georgia,serif;color:var(--gold);margin:0 0 12px}h3{margin:0 0 8px;font-size:1rem}.panel{background:#172d35ed;border:1px solid #507079;border-radius:17px;padding:20px;margin:14px 0;box-shadow:0 12px 24px #0002}.center{text-align:center}.controls{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:12px 0}.btn{font:600 14px system-ui;padding:11px 17px;border-radius:9px;background:var(--gold);color:#17242a;border:0;cursor:pointer}.btn.secondary{background:#35515b;color:white;border:1px solid #6e8a8e}.btn:disabled{cursor:not-allowed;opacity:.4}.btn:hover:not(:disabled){filter:brightness(1.1)}input{border:1px solid #819593;border-radius:9px;padding:11px 13px;background:#0e242b;color:white;font-size:16px;width:150px;text-align:center;text-transform:uppercase;letter-spacing:.12em}.hidden{display:none!important}.status{color:var(--gold);font-size:1.05rem;font-weight:600;text-align:center;min-height:30px}.subtle{color:var(--muted);font-size:.9rem;line-height:1.5}.piles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}.pile{background:#10262d;border:2px dashed #5a7880;border-radius:13px;min-height:160px;padding:8px 5px;text-align:center;cursor:pointer;transition:background .15s,border-color .15s}.pile:hover{border-color:var(--gold)}.pile.active{border-style:solid;border-color:var(--gold);background:#2a4143}.pile.used{opacity:.42;cursor:default}.pile.win{border-color:var(--green)}.pile.loss{border-color:var(--red)}.pile .ptitle{font-size:12px;font-weight:700;margin-bottom:8px}.pile .count{font-size:12px;color:var(--muted);margin-top:6px}.cards{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;min-height:88px}.pile .cards{gap:2px;align-content:start}.card{width:56px;height:78px;border-radius:7px;background:#fff9e8;color:#18252c;box-shadow:0 2px 4px #0006;border:2px solid #fff9e8;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:22px;font-weight:800;cursor:pointer;user-select:none;position:relative}.card .suit{font-size:24px;line-height:1.1}.card.red{color:#b5363a}.card.joker{color:#6956a5;background:#ebe4ff}.card.chosen{transform:translateY(-7px);border-color:var(--gold);box-shadow:0 0 0 2px #b79746}.card.back{background:repeating-linear-gradient(45deg,#20424f,#20424f 5px,#2e5864 5px,#2e5864 10px);color:var(--gold);border:3px solid #c9bc95;font-size:24px}.pile .card{width:37px;height:52px;font-size:15px;border-radius:5px}.pile .card .suit{font-size:14px}.pile .card.back{font-size:16px}.score{font-weight:bold}.flexline{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}.pill{padding:5px 10px;background:#314951;border-radius:25px;color:#e8eddf;font-size:12px}.explain{border-left:3px solid var(--gold);padding-left:12px;margin:10px 0;font-size:.93rem;color:#d9e3df}.log{max-height:160px;overflow:auto;font-size:13px;line-height:1.7;color:#c8d7d5}.battle{display:grid;grid-template-columns:1fr 1fr;gap:14px}.battle .panel{margin:0}.badge{color:var(--gold);font-size:13px}#roomCode{font-family:monospace;font-size:26px;letter-spacing:.25em;color:var(--gold)}#hand .card{cursor:pointer}.rules summary{cursor:pointer;color:var(--gold);font-weight:700}.rules li{margin:7px 0}.notice{color:#f3c9a7}.topbar{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap}#lobbyNote{margin:10px auto;max-width:650px}@media(max-width:650px){.piles{gap:4px}.pile{min-height:127px;padding:7px 2px}.pile .card{width:27px;height:39px;font-size:12px}.pile .card .suit{font-size:11px}.pile .ptitle{font-size:10px}.pile .count{font-size:10px}.card{width:47px;height:68px}.panel{padding:12px}.battle{gap:6px}}
+</style>
+</head>
+<body><div class="wrap"><header><h1>PLATOON</h1><p>A two-player card battle · inspired by Ni no Kuni</p></header>
+<section id="lobby" class="panel center"><h2>Play with a friend</h2><p>One player creates a room. The other enters its code. No accounts required.</p><div class="controls"><button class="btn" id="create">Create room</button><input id="codeInput" placeholder="ROOM CODE" maxlength="6" aria-label="Room code"><button class="btn secondary" id="join">Join room</button></div><div id="lobbyNote" class="subtle">Use two browser tabs to test on one computer, or share the room code with a friend.</div><div id="waiting" class="hidden"><p>Your room code</p><div id="roomCode"></div><div class="controls"><button class="btn secondary" id="copyInvite">Copy invitation link</button></div><p id="waitingMsg">Waiting for the second player…</p></div></section>
+<section id="game" class="hidden"><div class="panel"><div class="topbar"><span id="role" class="pill"></span><span id="score" class="pill"></span><span id="connection" class="pill"></span></div><p id="status" class="status"></p><p id="help" class="subtle center"></p></div>
+<div class="panel"><div class="flexline"><h2>Opponent's platoons</h2><span id="opponentReady" class="pill"></span></div><div id="enemyPiles" class="piles"></div></div>
+<div class="panel"><div class="flexline"><h2>Your platoons</h2><span id="myReady" class="pill"></span></div><div id="myPiles" class="piles"></div><div id="arrangeControls" class="controls"><button class="btn secondary" id="returnCard">Return selected card to hand</button><button class="btn" id="ready">Lock in your five platoons</button></div><div id="turnControls" class="controls hidden"><button class="btn" id="battleBtn">Battle selected platoons</button></div></div>
+<div class="panel" id="handPanel"><h2>Your unassigned cards</h2><div id="hand" class="cards"></div><p class="subtle center">Select a card, then click one of your five platoons. Click an assigned card to return it to your hand. Wizards cannot be alone.</p></div>
+<div class="panel hidden" id="battleResult"><h2>Latest battle</h2><div id="battleText"></div></div>
+<div class="panel"><div class="flexline"><h2>Battle history</h2><span id="matchWins" class="badge"></span></div><div id="history" class="log">No battles yet.</div><div id="rematchControl" class="controls hidden"><button class="btn" id="rematch">Request rematch</button><span id="rematchInfo" class="subtle"></span></div></div></section>
+<details class="panel rules"><summary>How to play and special-card rules</summary><p>Each player receives 10 cards from a shared 54-card deck (standard playing cards plus two Wizards). Arrange all 10 into exactly five nonempty piles. Then players alternate turns choosing one unused pile of their own and one unused pile belonging to the opponent. First to three victories wins; if all five battles conclude without three victories, the higher victory total wins (equal totals are a draw).</p><ul><li><b>Numbers 2–10:</b> their printed value. J, Q and K are worth 10; A (Bishop) is worth 1; Joker (Wizard) is worth 0.</li><li><b>King:</b> beats a normal pile regardless of its total, but loses to a Bishop. King vs King uses point totals.</li><li><b>Bishop (Ace):</b> loses to ordinary piles, but beats a King. Bishop vs Bishop uses point totals.</li><li><b>Wizard (Joker):</b> swaps the piles before the comparison, effectively reversing who gets the victory. If both sides have Wizards, the swaps cancel. Wizards must be accompanied by another card.</li><li><b>Ties:</b> equal-strength piles produce no victory for either player.</li></ul><p class="subtle">The original casino's betting, prebattle prediction and asymmetric house tie rules are intentionally omitted in this friendly head-to-head version.</p></details>
+<footer class="center subtle">Unofficial fan-made adaptation. Not affiliated with Level-5 or Bandai Namco. Browser-to-browser signaling uses the public PeerJS service. Do not use room codes as passwords.</footer></div>
+<script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const SUITS=['♠','♥','♦','♣'];
+let peer=null,conn=null,isHost=false,room='',myIndex=0,model=null,view=null,selectedCard=null,selectedMine=null,selectedEnemy=null,serverState=null;
+const nameFor=i=>i===myIndex?'You':'Opponent';
+const escapeHTML=s=>String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+function note(text){$('lobbyNote').textContent=text}
+function code(){return Math.random().toString(36).slice(2,8).toUpperCase()}
+function deck(){let d=[];for(const s of SUITS)for(const rank of ['A','2','3','4','5','6','7','8','9','10','J','Q','K'])d.push({id:rank+s,rank,suit:s});d.push({id:'W1',rank:'W',suit:'★'},{id:'W2',rank:'W',suit:'★'});for(let i=d.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]]}return d}
+function freshState(scores=[0,0]){let d=deck();return {phase:'arrange',hands:[d.slice(0,10),d.slice(10,20)],piles:[Array.from({length:5},()=>[]),Array.from({length:5},()=>[])],ready:[false,false],used:[Array(5).fill(false),Array(5).fill(false)],score:[0,0],matchScores:scores,turn:Math.floor(Math.random()*2),history:[],latest:null,rematch:[false,false],winner:null}}
+function isValid(s,p){const piles=s.piles[p];return s.hands[p].length===0 && piles.every(a=>a.length>0 && !(a.length===1 && a[0].rank==='W')) && piles.reduce((n,a)=>n+a.length,0)===10}
+function rankVal(c){return c.rank==='W'?0:c.rank==='A'?1:['J','Q','K'].includes(c.rank)?10:Number(c.rank)}
+function power(pile){return {sum:pile.reduce((n,c)=>n+rankVal(c),0),king:pile.some(c=>c.rank==='K'),bishop:pile.some(c=>c.rank==='A'),wizard:pile.some(c=>c.rank==='W')}}
+function comparePiles(a,b){const A=power(a),B=power(b);let v=0,reason='points';
+// Apply specials to determine the stronger pile, then flip the actual winner for one Wizard.
+if(A.bishop!==B.bishop){if(A.bishop && B.king){v=1;reason='Bishop defeats King'}else if(B.bishop && A.king){v=-1;reason='Bishop defeats King'}else{v=A.bishop?-1:1;reason='Bishop loses to a non-King'}}
+else if(A.king!==B.king){v=A.king?1:-1;reason='King defeats an ordinary pile'}
+else{v=Math.sign(A.sum-B.sum);reason='card totals'}
+if(A.wizard!==B.wizard){v=-v;reason+='; Wizard swaps the armies'}
+else if(A.wizard&&B.wizard)reason+='; two Wizards cancel';
+return {value:v,reason,a:A.sum,b:B.sum}}
+function sendView(){if(!serverState)return;const s=serverState;for(let p=0;p<2;p++){
+const other=1-p;const payload={type:'state',mine:p,phase:s.phase,hand:s.hands[p],myPiles:s.piles[p],enemyPiles:s.piles[other].map((pile,i)=>({count:pile.length,used:s.used[other][i],cards:s.used[other][i]||s.phase==='over'?pile:null})),myUsed:s.used[p],ready:s.ready,score:s.score,matchScores:s.matchScores,turn:s.turn,history:s.history,latest:s.latest,rematch:s.rematch,winner:s.winner};
+if(p===0)renderView(payload);else if(conn&&conn.open)conn.send(payload);
+}}
+function errorFor(p,message){if(p===0)alert(message);else if(conn&&conn.open)conn.send({type:'error',message})}
+function act(p,a){const s=serverState;if(!s||!a||typeof a!=='object')return;
+if(a.kind==='move'&&s.phase==='arrange'&&!s.ready[p]){
+const from=Number(a.from),to=Number(a.to),id=a.id;if(typeof id!=='string'||!Number.isInteger(to)||to<0||to>5)return;
+let card;if(from===-1){const i=s.hands[p].findIndex(c=>c.id===id);if(i<0)return;card=s.hands[p].splice(i,1)[0]}
+else{if(!Number.isInteger(from)||from<0||from>=5)return;const i=s.piles[p][from].findIndex(c=>c.id===id);if(i<0)return;card=s.piles[p][from].splice(i,1)[0]}
+if(to===5)s.hands[p].push(card);else s.piles[p][to].push(card);
+}else if(a.kind==='ready'&&s.phase==='arrange'&&isValid(s,p)){
+s.ready[p]=true;if(s.ready.every(Boolean))s.phase='battle';
+}else if(a.kind==='battle'&&s.phase==='battle'&&s.turn===p){
+const own=Number(a.own),enemy=Number(a.enemy);if(!Number.isInteger(own)||!Number.isInteger(enemy)||own<0||own>=5||enemy<0||enemy>=5||s.used[p][own]||s.used[1-p][enemy])return;
+const result=comparePiles(s.piles[p][own],s.piles[1-p][enemy]);const winner=result.value===0?null:(result.value>0?p:1-p);
+s.used[p][own]=true;s.used[1-p][enemy]=true;if(winner!==null)s.score[winner]++;
+s.latest={attacker:p,own,enemy,winner,reason:result.reason,ownCards:s.piles[p][own],enemyCards:s.piles[1-p][enemy],ownPoints:result.a,enemyPoints:result.b};s.history.push({attacker:p,winner,own,enemy});
+if(s.score.some(n=>n>=3)||s.history.length>=5){s.phase='over';s.winner=s.score[0]===s.score[1]?null:s.score[0]>s.score[1]?0:1;if(s.winner!==null)s.matchScores[s.winner]++}else s.turn=1-p;
+}else if(a.kind==='rematch'&&s.phase==='over'){
+s.rematch[p]=true;if(s.rematch.every(Boolean)){serverState=freshState(s.matchScores);selectedCard=null;selectedMine=null;selectedEnemy=null}
+}else return;
+sendView();}
+function issue(a){if(isHost)act(0,a);else if(conn&&conn.open)conn.send({type:'action',action:a});}
+function cardHTML(c,opts={}){if(!c)return '<div class="card back">✦</div>';const cl=['card',c.rank==='W'?'joker':'',c.suit==='♥'||c.suit==='♦'?'red':'',opts.chosen?'chosen':''].filter(Boolean).join(' ');return `<div class="${cl}" data-id="${escapeHTML(c.id)}" title="${c.rank==='A'?'Bishop':c.rank==='W'?'Wizard':c.rank==='K'?'King':c.rank}${c.rank==='W'?'':' '+c.suit}"><span>${escapeHTML(c.rank==='W'?'W':c.rank)}</span><span class="suit">${escapeHTML(c.suit)}</span></div>`}
+function pileHTML(cards,count,isEnemy,i,used){let html=`<div class="ptitle">${isEnemy?'Rival':'Platoon'} ${i+1}</div><div class="cards">`;if(cards)html+=cards.map(c=>cardHTML(c)).join('');else html+=Array.from({length:count},()=>cardHTML(null)).join('');return html+`</div><div class="count">${count} card${count===1?'':'s'}${used?' · used':''}</div>`}
+function renderView(v){view=v;$('lobby').classList.add('hidden');$('game').classList.remove('hidden');$('role').textContent=myIndex===0?'Host · Player 1':'Guest · Player 2';$('score').textContent=`Battles: ${v.score[myIndex]}–${v.score[1-myIndex]}`;$('matchWins').textContent=`Matches: ${v.matchScores[myIndex]}–${v.matchScores[1-myIndex]}`;$('connection').textContent=conn&&conn.open?'Connected':'Local host';
+if(v.phase==='arrange'){$('status').textContent=v.ready[myIndex]?'Waiting for your opponent to finish…':'Arrange your ten cards into five platoons';$('help').textContent=v.ready[myIndex]?'Your platoons are locked.':'Select one card, then click a platoon to move it. Each platoon needs at least one card.'}
+else if(v.phase==='battle'){$('status').textContent=v.turn===myIndex?'Your turn to choose a battle':'Opponent is choosing a battle';$('help').textContent=v.turn===myIndex?'Select one of your unused platoons and one of your opponent’s unused platoons.':'Your opponent will select which platoons fight next.'}
+else{$('status').textContent=v.winner===null?'It’s a draw!':v.winner===myIndex?'You won the match!':'Your opponent won the match.';$('help').textContent='Request a rematch to play another hand.'}
+$('myReady').textContent=v.ready[myIndex]?'Locked in':'Arranging';$('opponentReady').textContent=v.ready[1-myIndex]?'Locked in':'Arranging';
+$('myPiles').innerHTML='';$('enemyPiles').innerHTML='';for(let i=0;i<5;i++){
+let m=document.createElement('div');m.className='pile'+(selectedMine===i?' active':'')+(v.myUsed[i]?' used':'');m.innerHTML=pileHTML(v.myPiles[i],v.myPiles[i].length,false,i,v.myUsed[i]);m.onclick=e=>{
+if(v.phase==='arrange'&&!v.ready[myIndex]){const c=e.target.closest('.card');if(c){issue({kind:'move',from:i,to:5,id:c.dataset.id});return}if(selectedCard){issue({kind:'move',from:-1,to:i,id:selectedCard});selectedCard=null}else{selectedMine=i;renderView(view)}}
+else if(v.phase==='battle'&&v.turn===myIndex&&!v.myUsed[i]){selectedMine=i;renderView(view)}};$('myPiles').append(m);
+const e=document.createElement('div');e.className='pile'+(selectedEnemy===i?' active':'')+(v.enemyPiles[i].used?' used':'');e.innerHTML=pileHTML(v.enemyPiles[i].cards,v.enemyPiles[i].count,true,i,v.enemyPiles[i].used);e.onclick=()=>{if(v.phase==='battle'&&v.turn===myIndex&&!v.enemyPiles[i].used){selectedEnemy=i;renderView(view)}};$('enemyPiles').append(e)}
+$('hand').innerHTML=v.hand.map(c=>cardHTML(c,{chosen:selectedCard===c.id})).join('');$('hand').querySelectorAll('.card').forEach(el=>el.onclick=()=>{if(v.phase!=='arrange'||v.ready[myIndex])return;selectedCard=selectedCard===el.dataset.id?null:el.dataset.id;renderView(view)});
+$('handPanel').classList.toggle('hidden',v.phase!=='arrange'||v.ready[myIndex]);$('arrangeControls').classList.toggle('hidden',v.phase!=='arrange'||v.ready[myIndex]);$('turnControls').classList.toggle('hidden',v.phase!=='battle'||v.turn!==myIndex);$('ready').disabled=!(v.hand.length===0&&v.myPiles.every(p=>p.length>0&&!(p.length===1&&p[0].rank==='W')));$('returnCard').disabled=!selectedCard;
+$('battleBtn').disabled=selectedMine===null||selectedEnemy===null;
+$('history').innerHTML=v.history.length?v.history.map((h,i)=>`<div>Battle ${i+1}: ${h.winner===null?'Tie':h.winner===myIndex?'You won':'Opponent won'} · ${h.attacker===myIndex?'you attacked':'opponent attacked'} · ${h.attacker===myIndex?`your ${h.own+1} vs rival ${h.enemy+1}`:`rival ${h.own+1} vs your ${h.enemy+1}`}</div>`).join(''):'No battles yet.';
+$('battleResult').classList.toggle('hidden',!v.latest);if(v.latest){const b=v.latest;const mine=b.attacker===myIndex?b.ownCards:b.enemyCards;const theirs=b.attacker===myIndex?b.enemyCards:b.ownCards;$('battleText').innerHTML=`<div class="battle"><div><h3>Your cards</h3><div class="cards">${mine.map(c=>cardHTML(c)).join('')}</div></div><div><h3>Opponent's cards</h3><div class="cards">${theirs.map(c=>cardHTML(c)).join('')}</div></div></div><p class="center"><strong>${b.winner===null?'Tie':b.winner===myIndex?'You win this battle!':'Opponent wins this battle!'}</strong> <span class="subtle">(${escapeHTML(b.reason)})</span></p>`}
+$('rematchControl').classList.toggle('hidden',v.phase!=='over');$('rematch').disabled=v.rematch[myIndex];$('rematchInfo').textContent=v.rematch[myIndex]?'Waiting for your opponent to accept…':v.rematch[1-myIndex]?'Opponent wants a rematch.':'';
+}
+function connected(){if(isHost){serverState=freshState();sendView()}else{conn.send({type:'hello'});}note('Connected. Enjoy the game!')}
+function setupConn(c){conn=c;conn.on('open',connected);conn.on('data',m=>{if(isHost){if(m&&m.type==='action')act(1,m.action);else if(m&&m.type==='hello')sendView()}else if(m&&m.type==='state'){myIndex=1;renderView(m)}else if(m&&m.type==='error')alert(m.message)});conn.on('close',()=>{if($('game').classList.contains('hidden'))note('Connection closed. Reload to try again.');else{$('connection').textContent='Disconnected';$('status').textContent='Your opponent disconnected. Refresh to make a new room.'}});conn.on('error',err=>note('Connection error: '+err.message))}
+function ensurePeer(){if(typeof Peer==='undefined'){note('Could not load the multiplayer library. Check your internet connection or ad-blocker.');return false}return true}
+$('create').onclick=()=>{if(!ensurePeer()||peer)return;isHost=true;myIndex=0;room=code();peer=new Peer('platoon-fan-'+room.toLowerCase(),{debug:0});peer.on('open',()=>{$('waiting').classList.remove('hidden');$('roomCode').textContent=room;note('Room created. Send the code or invitation link to your friend.');$('create').disabled=true;$('join').disabled=true});peer.on('connection',c=>{if(conn&&conn.open){c.on('open',()=>c.close());return}setupConn(c)});peer.on('error',e=>note('Could not create a room: '+e.message+'. Reload and try again.'))};
+$('join').onclick=()=>{if(!ensurePeer()||peer)return;room=$('codeInput').value.trim().toUpperCase();if(!/^[A-Z0-9]{6}$/.test(room)){note('Enter a six-character room code.');return}isHost=false;myIndex=1;note('Connecting to room '+room+'…');peer=new Peer({debug:0});peer.on('open',()=>{setupConn(peer.connect('platoon-fan-'+room.toLowerCase(),{reliable:true}));$('join').disabled=true;$('create').disabled=true});peer.on('error',e=>note('Connection failed: '+e.message+'. Check the code and reload.'))};
+$('copyInvite').onclick=()=>{const url=new URL(location.href);url.searchParams.set('room',room);const link=url.toString();if(navigator.clipboard&&location.protocol==='https:')navigator.clipboard.writeText(link).then(()=>{$('copyInvite').textContent='Copied!'}).catch(()=>prompt('Copy this invitation link:',link));else prompt('Copy this invitation link:',link)};
+$('ready').onclick=()=>issue({kind:'ready'});$('returnCard').onclick=()=>{if(selectedCard)selectedCard=null;renderView(view)};$('battleBtn').onclick=()=>{if(selectedMine===null||selectedEnemy===null)return;issue({kind:'battle',own:selectedMine,enemy:selectedEnemy});selectedMine=null;selectedEnemy=null};$('rematch').onclick=()=>issue({kind:'rematch'});
+const invite=new URLSearchParams(location.search).get('room');if(invite&&/^[a-z0-9]{6}$/i.test(invite)){$('codeInput').value=invite.toUpperCase();note('You have been invited to a game. Click Join room!')}
+</script></body></html>
+
+# Platoon: two-player browser card game
+
+An unofficial, original-looking fan adaptation of **Platoon** from *Ni no Kuni: Wrath of the White Witch*.
+
+## Try it quickly
+
+1. Upload `index.html` to any static website host, such as GitHub Pages.
+2. Open the website on your own computer and click **Create room**.
+3. Copy the invitation link and open it on another computer (or a second tab for testing).
+4. In the other browser, click **Join room**.
+5. Arrange your cards, lock in your five platoons, and take turns choosing battles.
+
+**No Firebase account, database, or backend code is required.** The application connects players directly using WebRTC and PeerJS's public signaling infrastructure. Both computers must have internet access and allow peer-to-peer connections. Some restricted networks may block connections, and public signaling has no uptime guarantee. If this becomes a problem, move to a dedicated signaling server or managed realtime backend.
+
+## Publish to GitHub Pages
+
+1. Create a new public repository in GitHub, such as `platoon`.
+2. Add the `index.html` file to the root of the repository (you may also add this README).
+3. Open repository **Settings → Pages**.
+4. Under **Build and deployment**, choose **Deploy from a branch**, branch `main`, folder `/ (root)`, and save.
+5. After Pages publishes, visit `https://YOUR-USERNAME.github.io/platoon/`.
+6. Click **Create room** and share the invite link with your friend.
+
+## Game rules implemented
+
+- One shuffled 54-card deck (52 standard cards and two Jokers), dealt 10 cards to each player.
+- All 10 cards are assigned across exactly five nonempty platoons. A Wizard cannot be alone.
+- King: beats non-special piles, loses to Bishop; King vs King compares totals.
+- Bishop (Ace): loses to normal piles, defeats King; Bishop vs Bishop compares totals.
+- Wizard (Joker): swaps ownership of the matched piles, reversing the winner; two Wizards cancel.
+- The attacker selects one unused own platoon and one unused opponent platoon; attacker alternates each battle.
+- First to three wins takes the match. If five battles finish without a player reaching three wins, compare wins or declare a draw.
+- Rematches track match victories.
+
+## Differences from the original casino game
+
+This head-to-head version intentionally omits chip betting, prebattle predictions and the dealer's asymmetric tie rule. Cards are simple HTML-rendered playing cards, not copyrighted game artwork. Random first player is chosen automatically.
+
+## Privacy and limitations
+
+- The host browser shuffles and retains both players' full cards to enforce game rules. Guest cards are *not* displayed in the host UI, but a technically knowledgeable host can inspect them using developer tools. This is suitable for casual play with a friend, **not competitive or anti-cheat play**.
+- Invite codes are easy to share and not secure authentication. Don't post them publicly.
+- If the host closes the tab, the match ends. Games do not persist across refreshes.
+- Networking works best over HTTPS (including GitHub Pages), on non-restrictive networks.
+- For stronger secrecy and persistence, use Firebase with server-side rule checks or a dedicated multiplayer server.
+
+## Troubleshooting
+
+- If your friend cannot join, verify the exact six-character code, reload both tabs, and create a new room.
+- If the multiplayer library cannot load, make sure the browser can reach `unpkg.com` and the PeerJS public signaling service.
+- If connections fail on a school/work network, try a different connection or hotspot.
